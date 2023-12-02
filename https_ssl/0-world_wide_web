@@ -1,24 +1,16 @@
 #!/usr/bin/env bash
-
-# Function to display information about a subdomain
-display_info() {
-    local sub=$1
-    local domain=$2
-
-    echo -n "The subdomain $sub"
-    dig "$sub.$domain" | grep -A1 'ANSWER SECTION:' | tail -n -1 | awk '{print " is a " $4 " record and points to " $5}'
-}
-
-# Main script
+# display information about subdomains
 domain_name=$1
-
-if [ "$#" -eq 2 ]; then
-    sub_domain=$2
-    display_info "$sub_domain" "$domain_name"
-else
-    sub_domains=("www" "lb-01" "web-01" "web-02")
-    for sub in "${sub_domains[@]}"; do
-        display_info "$sub" "$domain_name"
-    done
-fi
-
+if [ $# -eq 1 ]; then
+    SUB_DOMAINS=("www" "lb-01" "web-01" "web-02")
+        for subdomain in ${SUB_DOMAINS[@]}; do
+	        record_type="$(dig "$subdomain.$domain_name" | grep -A1 'ANSWER SECTION:' | tail -1 | awk '{print $4}')"
+		        destination_ip="$(dig "$subdomain.$domain_name" | grep -A1 'ANSWER SECTION:' | tail -1 | awk '{print $5}')"
+			        echo "The subdomain $subdomain is a $record_type record and points to $destination_ip"
+				    done
+				    else
+				        subdomain="$2"
+					    record_type="$(dig "$subdomain.$domain_name" | grep -A1 'ANSWER SECTION:' | tail -1 | awk '{print $4}')"
+					        destination_ip="$(dig "$subdomain.$domain_name" | grep -A1 'ANSWER SECTION:' | tail -1 | awk '{print $5}')"
+						    echo "The subdomain $subdomain is a $record_type record and points to $destination_ip"
+						    fi
