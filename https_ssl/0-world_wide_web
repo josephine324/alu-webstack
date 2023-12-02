@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
-#display info about sub-domain
-domain_name=$1 
+
+# Function to display information about a subdomain
+display_info() {
+    local sub=$1
+    local domain=$2
+
+    echo -n "The subdomain $sub"
+    dig "$sub.$domain" | grep -A1 'ANSWER SECTION:' | tail -n -1 | awk '{print " is a " $4 " record and points to " $5}'
+}
+
+# Main script
+domain_name=$1
+
 if [ "$#" -eq 2 ]; then
-	sub_domain=$2
+    sub_domain=$2
+    display_info "$sub_domain" "$domain_name"
 else
-	sub_domain=("www" "lb-01" "web-01" "web-02")
+    sub_domains=("www" "lb-01" "web-01" "web-02")
+    for sub in "${sub_domains[@]}"; do
+        display_info "$sub" "$domain_name"
+    done
 fi
-for sub in "${sub_domain[@]}"; do
-	echo -n "The subdomain $sub"
-	dig "$sub.$domain_name" | grep -A1 'ANSWER SECTION:' | tail -n -1 | awk '{print " is a " $4 " record and points to " $5}'
-done
+
